@@ -1,14 +1,14 @@
-# Домен. Банки и курсы валют
-Банк имеет такие характеристики:
-•	Имя
-•	Телефон
-•	Тип банка (локальный или глобальный)
-•	Возможность покупки валюты онлайн
-•	Количество отделений
-•	Адресс
-•	Валюты
-Валюты:
-•	Название Валюты
-•	Короткое название валюты
-•	Стоимость покупки
-•	Стоимость продажи
+# Domain. Banks and exchange rates
+The bank consists of the following parameters:
+•	Name
+•	Phone
+•	Bank type (local or global)
+•	Ability to buy currency online
+•	Number of branches
+•	Address
+•	Currencies
+Currencies:
+•	Currency name
+•	Currency short name
+•	Purchase rate
+•	Selling rate
