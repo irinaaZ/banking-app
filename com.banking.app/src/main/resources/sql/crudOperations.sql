@@ -1,8 +1,8 @@
-INSERT INTO bank.public.banks (name, phone, type, able_to_buy_currency_online, number_of_branches, address, currencies)
-VALUES ('Monobank', '0800205205', 'Global', true, 1, 'Kiev, 9 Institutska Street', 'USD; EUR; UAH');
+INSERT INTO bank.public.banks (name, phone, type, able_to_buy_currency_online, number_of_branches, address)
+VALUES ('Monobank', '0800205205', 'Global', true, 1, 'Kiev, 9 Institutska Street');
 
 UPDATE bank.public.banks
-SET currencies = 'USD; EUR; UAH; TRY'
+SET type = 'Local'
 WHERE id = 1;
 
 SELECT *

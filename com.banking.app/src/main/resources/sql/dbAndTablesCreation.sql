@@ -10,8 +10,7 @@ CREATE TABLE banks
 	type varchar,
 	able_to_buy_currency_online boolean,
 	number_of_branches int,
-	address varchar,
-	currencies varchar
+	address varchar
 );
 
 CREATE TABLE currencies
