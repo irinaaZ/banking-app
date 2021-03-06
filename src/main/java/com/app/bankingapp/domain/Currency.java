@@ -69,4 +69,16 @@ public class Currency {
     public void setSellingRate(BigDecimal sellingRate) {
         this.sellingRate = sellingRate;
     }
+
+    @Override
+    public String toString() {
+        return "Currency{" +
+                "id=" + id +
+                ", bankId=" + bankId +
+                ", name='" + name + '\'' +
+                ", shortName='" + shortName + '\'' +
+                ", purchaseRate=" + purchaseRate +
+                ", sellingRate=" + sellingRate +
+                '}';
+    }
 }

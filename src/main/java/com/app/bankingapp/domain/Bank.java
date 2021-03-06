@@ -77,4 +77,17 @@ public class Bank {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    @Override
+    public String toString() {
+        return "Bank{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", phone='" + phone + '\'' +
+                ", type='" + type + '\'' +
+                ", ableToBuyCurrencyOnline=" + ableToBuyCurrencyOnline +
+                ", numberOfBranches=" + numberOfBranches +
+                ", address='" + address + '\'' +
+                '}';
+    }
 }
