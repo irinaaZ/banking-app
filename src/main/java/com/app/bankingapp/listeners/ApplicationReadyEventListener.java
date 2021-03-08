@@ -30,10 +30,12 @@ public class ApplicationReadyEventListener {
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReadyHandler() {
 // GET
-        Bank bank = bankRepository.get(1L);
+        Bank bank = bankRepository.get(1L)
+                .orElseThrow(() -> new RuntimeException("Bank was not found"));
         LOGGER.info("Bank = {}", bank);
 
-        Currency currency = currencyRepository.get(1L);
+        Currency currency = currencyRepository.get(1L)
+                .orElseThrow(() -> new RuntimeException("Currency was not found"));
         LOGGER.info("Currency = {}", currency);
 
 // GET ALL
@@ -51,7 +53,8 @@ public class ApplicationReadyEventListener {
         newBank.setAbleToBuyCurrencyOnline(false);
         newBank.setNumberOfBranches(10L);
         newBank.setAddress("Central avenue 1");
-        Bank createdBank = bankRepository.create(newBank);
+        Bank createdBank = bankRepository.create(newBank)
+                .orElseThrow(() -> new RuntimeException("Bank was not created"));
         LOGGER.info("New bank = {}", createdBank);
 
         Currency newCurrency = new Currency();
@@ -60,17 +63,26 @@ public class ApplicationReadyEventListener {
         newCurrency.setShortName("UAH1");
         newCurrency.setPurchaseRate(new BigDecimal("26.11"));
         newCurrency.setSellingRate(new BigDecimal("28.12"));
-        Currency createdCurrency = currencyRepository.create(newCurrency);
+        Currency createdCurrency = currencyRepository.create(newCurrency)
+                .orElseThrow(() -> new RuntimeException("Currency was not created"));
         LOGGER.info("New currency = {}", createdCurrency);
 
 // UPDATE
         newBank.setAddress("Central avenue 100");
-        Bank updatedBank = bankRepository.update(createdBank);
+        Bank updatedBank = bankRepository.update(createdBank)
+                .orElseThrow(() -> new RuntimeException("Bank was not updated"));
         LOGGER.info("Updated bank = {}", updatedBank);
 
         newCurrency.setShortName("UAH");
-        Currency updatedCurrency = currencyRepository.update(createdCurrency);
+        Currency updatedCurrency = currencyRepository.update(createdCurrency)
+                .orElseThrow(() -> new RuntimeException("Currency was not updated"));
         LOGGER.info("Updated currency = {}", updatedCurrency);
+
+// Get global banks
+        LOGGER.info("Global banks are = {}", bankRepository.getGlobalBanks());
+
+// Get high-purchase rate currencies
+        LOGGER.info("High-purchase rate currencies are = {}", currencyRepository.getCurrenciesWithHighPurchaseRate());
 
 // DELETE
         bankRepository.delete(createdBank.getId());

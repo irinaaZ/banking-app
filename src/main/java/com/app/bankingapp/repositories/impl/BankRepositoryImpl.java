@@ -2,6 +2,7 @@ package com.app.bankingapp.repositories.impl;
 
 import com.app.bankingapp.domain.Bank;
 import com.app.bankingapp.repositories.BankRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class BankRepositoryImpl implements BankRepository {
@@ -23,7 +27,7 @@ public class BankRepositoryImpl implements BankRepository {
     }
 
     @Override
-    public Bank create(Bank bank) {
+    public Optional<Bank> create(Bank bank) {
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement preparedStatement =
@@ -46,7 +50,7 @@ public class BankRepositoryImpl implements BankRepository {
     }
 
     @Override
-    public Bank update(Bank bank) {
+    public Optional<Bank> update(Bank bank) {
         jdbcTemplate.update(con -> {
             PreparedStatement preparedStatement =
                     con.prepareStatement("UPDATE bank.public.banks SET name = ?, phone = ?, type = ?, " +
@@ -64,13 +68,27 @@ public class BankRepositoryImpl implements BankRepository {
     }
 
     @Override
-    public Bank get(Long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM bank.public.banks WHERE id = ?",
-                bankRowMapper, id);
+    public Optional<Bank> get(Long id) {
+        try {
+            return Optional
+                    .ofNullable(jdbcTemplate.queryForObject("SELECT * FROM bank.public.banks WHERE id = ?",
+                            bankRowMapper, id));
+        } catch (DataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
     public List<Bank> getAll() {
         return jdbcTemplate.query("SELECT * FROM bank.public.banks", bankRowMapper);
+    }
+
+    @Override
+    public Set<String> getGlobalBanks() {
+        return getAll()
+                .stream()
+                .filter(bank -> bank.getType().equalsIgnoreCase("Global"))
+                .map(Bank::getName)
+                .collect(Collectors.toSet());
     }
 }
