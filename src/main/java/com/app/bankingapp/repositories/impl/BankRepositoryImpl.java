@@ -90,12 +90,11 @@ public class BankRepositoryImpl implements BankRepository {
                 "name::text ILIKE ? OR " +
                 "phone::text ILIKE ? OR " +
                 "type::text ILIKE ? OR " +
-                "type::text ILIKE ? OR " +
                 "able_to_buy_currency_online::text ILIKE ? OR " +
                 "number_of_branches::text ILIKE ? OR " +
                 "address::text ILIKE ?";
         String likeText = "%" + text + "%";
-        return jdbcTemplate.query(query, bankRowMapper, likeText, likeText, likeText, likeText, likeText,
+        return jdbcTemplate.query(query, bankRowMapper, likeText, likeText, likeText, likeText,
                 likeText, likeText, likeText);
     }
 
