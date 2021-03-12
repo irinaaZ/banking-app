@@ -112,4 +112,18 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
         return jdbcTemplate.query("SELECT * FROM bank.public.currencies WHERE bank_id = ?",
                 currencyRowMapper, id);
     }
+
+    @Override
+    public List<Currency> searchTextInDB(String text) {
+        String query = "SELECT * FROM bank.public.currencies " +
+                "WHERE id::text ILIKE ? OR " +
+                "bank_id::text ILIKE ? OR " +
+                "name::text ILIKE ? OR " +
+                "short_name::text ILIKE ? OR " +
+                "purchase_rate::text ILIKE ? OR " +
+                "selling_rate::text ILIKE ?";
+        String likeText = "%" + text + "%";
+        return jdbcTemplate.query(query, currencyRowMapper, likeText, likeText, likeText, likeText, likeText,
+                likeText);
+    }
 }

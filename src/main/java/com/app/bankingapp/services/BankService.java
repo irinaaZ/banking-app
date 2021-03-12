@@ -10,4 +10,5 @@ public interface BankService {
     BankDto update(BankDto bank);
     BankDto get(Long id);
     List<BankDto> getAll();
+    List<BankDto> searchTextInDB(String text);
 }

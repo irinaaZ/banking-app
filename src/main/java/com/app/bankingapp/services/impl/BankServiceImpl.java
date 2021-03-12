@@ -59,4 +59,13 @@ public class BankServiceImpl implements BankService {
                 .map(bank -> new BankDto(bank, currencyRepository.getAllByBankId(bank.getId())))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<BankDto> searchTextInDB(String text) {
+        return bankRepository
+                .searchTextInDB(text)
+                .stream()
+                .map(BankDto::new)
+                .collect(Collectors.toList());
+    }
 }

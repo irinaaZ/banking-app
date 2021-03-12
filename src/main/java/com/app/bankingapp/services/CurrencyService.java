@@ -10,4 +10,5 @@ public interface CurrencyService {
     CurrencyDto update(CurrencyDto currency);
     CurrencyDto get(Long id);
     List<CurrencyDto> getAll();
+    List<CurrencyDto> searchTextInDB(String text);
 }

@@ -16,5 +16,6 @@ public interface CurrencyRepository {
     Optional<Currency> get(Long id);
     List<Currency> getAll();
     List<Currency> getAllByBankId(Long id);
+    List<Currency> searchTextInDB(String text);
     Set<String> getCurrenciesWithHighPurchaseRate();
 }

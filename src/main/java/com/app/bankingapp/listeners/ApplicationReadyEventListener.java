@@ -137,5 +137,13 @@ public class ApplicationReadyEventListener {
         currencyService.delete(createdCurrencyDto.getId());
         currencyDtos = currencyService.getAll();
         LOGGER.info("All currencies Dtos (updated) = {}", currencyDtos);
+
+// Search text in banks table
+        LOGGER.info("List of text found in banks table = {}", bankRepository.searchTextInDB("mAiN"));
+        LOGGER.info("List of text found in banks table = {}", bankService.searchTextInDB("onoB"));
+
+// Search text in currencies table
+        LOGGER.info("List of text found in currencies table = {}", currencyRepository.searchTextInDB("us"));
+        LOGGER.info("List of text found in currencies table = {}", currencyService.searchTextInDB("1"));
     }
 }

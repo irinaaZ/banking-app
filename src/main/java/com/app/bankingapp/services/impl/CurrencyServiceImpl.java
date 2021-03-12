@@ -56,4 +56,13 @@ public class CurrencyServiceImpl implements CurrencyService {
                 .map(CurrencyDto::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<CurrencyDto> searchTextInDB(String text) {
+        return currencyRepository
+                .searchTextInDB(text)
+                .stream()
+                .map(CurrencyDto::new)
+                .collect(Collectors.toList());
+    }
 }
