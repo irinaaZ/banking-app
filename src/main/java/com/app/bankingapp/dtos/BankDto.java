@@ -3,6 +3,7 @@ package com.app.bankingapp.dtos;
 import com.app.bankingapp.domain.Bank;
 import com.app.bankingapp.domain.Currency;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@NoArgsConstructor
 public class BankDto {
     private Long id;
     private String name;
