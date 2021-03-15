@@ -12,5 +12,6 @@ public interface BankRepository {
     Optional<Bank> update(Bank bank);
     Optional<Bank> get(Long id);
     List<Bank> getAll();
+    List<Bank> searchTextInDB(String text);
     Set<String> getGlobalBanks();
 }

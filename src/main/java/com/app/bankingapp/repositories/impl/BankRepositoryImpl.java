@@ -84,6 +84,21 @@ public class BankRepositoryImpl implements BankRepository {
     }
 
     @Override
+    public List<Bank> searchTextInDB(String text) {
+        String query = "SELECT * FROM bank.public.banks " +
+                "WHERE id::text ILIKE ? OR " +
+                "name::text ILIKE ? OR " +
+                "phone::text ILIKE ? OR " +
+                "type::text ILIKE ? OR " +
+                "able_to_buy_currency_online::text ILIKE ? OR " +
+                "number_of_branches::text ILIKE ? OR " +
+                "address::text ILIKE ?";
+        String likeText = "%" + text + "%";
+        return jdbcTemplate.query(query, bankRowMapper, likeText, likeText, likeText, likeText,
+                likeText, likeText, likeText);
+    }
+
+    @Override
     public Set<String> getGlobalBanks() {
         return getAll()
                 .stream()

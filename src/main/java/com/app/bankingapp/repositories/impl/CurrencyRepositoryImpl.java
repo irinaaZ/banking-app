@@ -1,19 +1,20 @@
 package com.app.bankingapp.repositories.impl;
 
 import com.app.bankingapp.domain.Currency;
+import com.app.bankingapp.dtos.CurrencyDto;
+import com.app.bankingapp.exceptions.ApplicationException;
 import com.app.bankingapp.repositories.CurrencyRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -45,8 +46,23 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
     }
 
     @Override
+    public List<Currency> create(List<CurrencyDto> currencies, Long bankId) {
+        return CollectionUtils.isEmpty(currencies) ? Collections.emptyList() : currencies
+                .stream()
+                .peek(currencyDto -> currencyDto.setBankId(bankId))
+                .map(currencyDto -> this.create(CurrencyDto.toDomain(currencyDto))
+                        .orElseThrow(() -> new ApplicationException("Currency " + currencyDto + " was not created")))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void delete(Long id) {
         jdbcTemplate.update("DELETE FROM bank.public.currencies WHERE id = ?", id);
+    }
+
+    @Override
+    public void deleteAllByBankId(Long id) {
+        jdbcTemplate.update("DELETE FROM bank.public.currencies WHERE bank_id = ?", id);
     }
 
     @Override
@@ -89,5 +105,25 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
                 .filter(currency -> currency.getPurchaseRate().compareTo(new BigDecimal("26.00")) > 0)
                 .map(Currency::getName)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public List<Currency> getAllByBankId(Long id) {
+        return jdbcTemplate.query("SELECT * FROM bank.public.currencies WHERE bank_id = ?",
+                currencyRowMapper, id);
+    }
+
+    @Override
+    public List<Currency> searchTextInDB(String text) {
+        String query = "SELECT * FROM bank.public.currencies " +
+                "WHERE id::text ILIKE ? OR " +
+                "bank_id::text ILIKE ? OR " +
+                "name::text ILIKE ? OR " +
+                "short_name::text ILIKE ? OR " +
+                "purchase_rate::text ILIKE ? OR " +
+                "selling_rate::text ILIKE ?";
+        String likeText = "%" + text + "%";
+        return jdbcTemplate.query(query, currencyRowMapper, likeText, likeText, likeText, likeText, likeText,
+                likeText);
     }
 }
