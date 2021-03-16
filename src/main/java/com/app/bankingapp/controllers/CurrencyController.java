@@ -10,7 +10,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(value = "/v1/currencies")
+@RequestMapping(value = "/v1/banks/currencies")
 public class CurrencyController {
 
     private final CurrencyService currencyService;
