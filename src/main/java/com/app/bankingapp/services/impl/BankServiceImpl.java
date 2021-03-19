@@ -1,6 +1,7 @@
 package com.app.bankingapp.services.impl;
 
 import com.app.bankingapp.domain.Bank;
+import com.app.bankingapp.domain.Currency;
 import com.app.bankingapp.dtos.BankDto;
 import com.app.bankingapp.exceptions.ApplicationException;
 import com.app.bankingapp.exceptions.ResourceNotFoundException;
@@ -27,13 +28,22 @@ public class BankServiceImpl implements BankService {
         Bank newBank = bankRepository
                 .create(BankDto.toDomain(bankDto))
                 .orElseThrow(() -> new ApplicationException("Bank " + bankDto + " was not added"));
-        return new BankDto(newBank, currencyRepository.create(bankDto.getCurrencies(), newBank.getId()));
+        List<Currency> createdCurrencies = null;
+        if (bankDto.getCurrencies() != null && !bankDto.getCurrencies().isEmpty()) {
+            createdCurrencies = currencyRepository.create(bankDto.getCurrencies(), newBank.getId());
+        }
+        return new BankDto(newBank, createdCurrencies);
     }
 
     @Override
     public void delete(Long id) {
-        currencyRepository.deleteAllByBankId(id);
-        bankRepository.delete(id);
+        bankRepository.get(id)
+                .map(bank -> {
+                    currencyRepository.deleteAllByBankId(id);
+                    bankRepository.delete(id);
+                    return bank;
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Bank with id " + id + " is not found"));
     }
 
     @Override
