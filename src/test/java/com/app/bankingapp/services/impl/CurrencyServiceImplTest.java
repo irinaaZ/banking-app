@@ -22,19 +22,19 @@ import static org.mockito.Mockito.*;
 
 class CurrencyServiceImplTest {
 
-    private final Long existedId = 1L;
-    private final Long notExistedId = 99L;
+    private final Long EXISTED_ID = 1L;
+    private final Long NOT_EXISTED_ID = 99L;
 
-    private final Currency currencyFromRepo1 = Currency
+    private final Currency CURRENCY_FROM_REPO1 = Currency
             .builder()
-            .id(existedId)
+            .id(EXISTED_ID)
             .name("US Dollar")
             .shortName("USD")
             .build();
 
-    private final Currency currencyFromRepo2 = Currency
+    private final Currency CURRENCY_FROM_REPO2 = Currency
             .builder()
-            .id(existedId)
+            .id(EXISTED_ID)
             .name("Euro")
             .shortName("EUR")
             .build();
@@ -52,29 +52,29 @@ class CurrencyServiceImplTest {
 
     @Test
     void create_currencyDto_shouldReturnNewDto() {
-        Currency currencyWithoutId = Currency.builder().name(currencyFromRepo2.getName()).build();
+        Currency currencyWithoutId = Currency.builder().name(CURRENCY_FROM_REPO2.getName()).build();
         CurrencyDto currencyDto = new CurrencyDto();
-        currencyDto.setName(currencyFromRepo2.getName());
+        currencyDto.setName(CURRENCY_FROM_REPO2.getName());
 
         when(currencyRepository.create(currencyWithoutId))
-                .thenReturn(Optional.of(currencyFromRepo2));
+                .thenReturn(Optional.of(CURRENCY_FROM_REPO2));
 
         CurrencyDto createdCurrencyDto = currencyService.create(currencyDto);
 
         assertNotNull(createdCurrencyDto);
         assertNotNull(createdCurrencyDto.getId());
-        assertEquals(new CurrencyDto(currencyFromRepo2), createdCurrencyDto);
+        assertEquals(new CurrencyDto(CURRENCY_FROM_REPO2), createdCurrencyDto);
 
         verify(currencyRepository).create(currencyWithoutId);
     }
 
     @Test
     void delete_existedCurrency_shouldCallRepositoryDeleteMethod() {
-        when(currencyRepository.get(existedId)).thenReturn(Optional.of(new Currency()));
+        when(currencyRepository.get(EXISTED_ID)).thenReturn(Optional.of(new Currency()));
 
-        currencyService.delete(existedId);
+        currencyService.delete(EXISTED_ID);
 
-        verify(currencyRepository).delete(existedId);
+        verify(currencyRepository).delete(EXISTED_ID);
     }
 
     @Test
@@ -82,9 +82,9 @@ class CurrencyServiceImplTest {
         when(currencyRepository.get(anyLong())).thenReturn(Optional.empty());
 
         ResourceNotFoundException resourceNotFoundException =
-                assertThrows(ResourceNotFoundException.class, () -> currencyService.delete(notExistedId));
+                assertThrows(ResourceNotFoundException.class, () -> currencyService.delete(NOT_EXISTED_ID));
 
-        assertEquals("Currency with id " + notExistedId + " was not found", resourceNotFoundException.getMessage());
+        assertEquals("Currency with id " + NOT_EXISTED_ID + " was not found", resourceNotFoundException.getMessage());
 
         verify(currencyRepository, never()).delete(anyLong());
     }
@@ -92,8 +92,8 @@ class CurrencyServiceImplTest {
     @Test
     void update_existedCurrency_shouldReturnUpdatedDto() {
         String newName = "Ukrainian hryvnia";
-        Currency currencyForUpdate = Currency.builder().id(existedId).name("Ukrainian").build();
-        Currency updatedCurrency = Currency.builder().id(existedId).name(newName).build();
+        Currency currencyForUpdate = Currency.builder().id(EXISTED_ID).name("Ukrainian").build();
+        Currency updatedCurrency = Currency.builder().id(EXISTED_ID).name(newName).build();
 
         when(currencyRepository.update(currencyForUpdate)).thenReturn(Optional.of(updatedCurrency));
 
@@ -107,14 +107,14 @@ class CurrencyServiceImplTest {
 
     @Test
     void get_existedCurrency_shouldReturnCurrencyDto() {
-        when(currencyRepository.get(currencyFromRepo1.getId())).thenReturn(Optional.of(currencyFromRepo1));
+        when(currencyRepository.get(CURRENCY_FROM_REPO1.getId())).thenReturn(Optional.of(CURRENCY_FROM_REPO1));
 
-        CurrencyDto currencyDto = currencyService.get(currencyFromRepo1.getId());
+        CurrencyDto currencyDto = currencyService.get(CURRENCY_FROM_REPO1.getId());
 
         assertNotNull(currencyDto);
-        assertEquals(new CurrencyDto(currencyFromRepo1), currencyDto);
+        assertEquals(new CurrencyDto(CURRENCY_FROM_REPO1), currencyDto);
 
-        verify(currencyRepository).get(currencyFromRepo1.getId());
+        verify(currencyRepository).get(CURRENCY_FROM_REPO1.getId());
     }
 
     @Test
@@ -122,19 +122,19 @@ class CurrencyServiceImplTest {
         when(currencyRepository.get(anyLong())).thenReturn(Optional.empty());
 
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class,
-                () -> currencyService.get(notExistedId));
+                () -> currencyService.get(NOT_EXISTED_ID));
 
-        assertEquals("Currency with id " + notExistedId + " is not found",
+        assertEquals("Currency with id " + NOT_EXISTED_ID + " is not found",
                 resourceNotFoundException.getMessage());
-        verify(currencyRepository).get(notExistedId);
+        verify(currencyRepository).get(NOT_EXISTED_ID);
     }
 
     @Test
     void getAll_shouldReturnListOfCurrencyDto() {
         List<CurrencyDto> expectedList = Arrays
-                .asList(new CurrencyDto(currencyFromRepo1), new CurrencyDto(currencyFromRepo2));
+                .asList(new CurrencyDto(CURRENCY_FROM_REPO1), new CurrencyDto(CURRENCY_FROM_REPO2));
 
-        when(currencyRepository.getAll()).thenReturn(Arrays.asList(currencyFromRepo1, currencyFromRepo2));
+        when(currencyRepository.getAll()).thenReturn(Arrays.asList(CURRENCY_FROM_REPO1, CURRENCY_FROM_REPO2));
 
         List<CurrencyDto> currencies = currencyService.getAll();
 
@@ -147,11 +147,11 @@ class CurrencyServiceImplTest {
     @Test
     void searchTextInDB_shouldReturnCurrencyDtoList() {
         String searchText = "uSd";
-        when(currencyRepository.searchTextInDB(searchText)).thenReturn(singletonList(currencyFromRepo1));
+        when(currencyRepository.searchTextInDB(searchText)).thenReturn(singletonList(CURRENCY_FROM_REPO1));
 
         List<CurrencyDto> currencyDtos = currencyService.searchTextInDB(searchText);
 
-        assertEquals(singletonList(new CurrencyDto(currencyFromRepo1)), currencyDtos);
+        assertEquals(singletonList(new CurrencyDto(CURRENCY_FROM_REPO1)), currencyDtos);
         verify(currencyRepository).searchTextInDB(searchText);
     }
 

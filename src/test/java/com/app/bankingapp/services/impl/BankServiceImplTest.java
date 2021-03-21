@@ -24,27 +24,27 @@ import static org.mockito.Mockito.*;
 
 class BankServiceImplTest {
 
-    private final Long existedId = 1L;
-    private final Long notExistedId = 99L;
+    private final Long EXISTED_ID = 1L;
+    private final Long NOT_EXISTED_ID = 99L;
 
-    private final Bank bankFromRepo1 = Bank
+    private final Bank BANK_FROM_REPO1 = Bank
             .builder()
-            .id(existedId)
+            .id(EXISTED_ID)
             .name("Monobank")
             .ableToBuyCurrencyOnline(true)
             .build();
 
-    private final List<Currency> currencies1 = singletonList(
-            Currency.builder().id(10L).bankId(bankFromRepo1.getId()).name("USD").build());
+    private final List<Currency> CURRENCIES1 = singletonList(
+            Currency.builder().id(10L).bankId(BANK_FROM_REPO1.getId()).name("USD").build());
 
-    private final Bank bankFromRepo2 = Bank
+    private final Bank BANK_FROM_REPO2 = Bank
             .builder()
             .id(200L)
             .name("Superbank")
             .build();
 
-    private final List<Currency> currencies2 = singletonList(
-            Currency.builder().id(11L).bankId(bankFromRepo2.getId()).name("EUR").build());
+    private final List<Currency> CURRENCIES2 = singletonList(
+            Currency.builder().id(11L).bankId(BANK_FROM_REPO2.getId()).name("EUR").build());
 
     @InjectMocks
     private BankServiceImpl bankService;
@@ -61,18 +61,18 @@ class BankServiceImplTest {
 
     @Test
     void create_bankDtoWithoutCurrencies_shouldReturnNewDtoWithoutCurrencies() {
-        Bank bankWithoutId = Bank.builder().name(bankFromRepo2.getName()).build();
+        Bank bankWithoutId = Bank.builder().name(BANK_FROM_REPO2.getName()).build();
         BankDto bankDto = new BankDto();
-        bankDto.setName(bankFromRepo2.getName());
+        bankDto.setName(BANK_FROM_REPO2.getName());
 
         when(bankRepository.create(bankWithoutId))
-                .thenReturn(Optional.of(bankFromRepo2));
+                .thenReturn(Optional.of(BANK_FROM_REPO2));
 
         BankDto createdBankDto = bankService.create(bankDto);
 
         assertNotNull(createdBankDto);
         assertNotNull(createdBankDto.getId());
-        assertEquals(new BankDto(bankFromRepo2), createdBankDto);
+        assertEquals(new BankDto(BANK_FROM_REPO2), createdBankDto);
         assertEquals(0, createdBankDto.getCurrencies().size());
 
         verify(bankRepository).create(bankWithoutId);
@@ -107,12 +107,12 @@ class BankServiceImplTest {
 
     @Test
     void delete_existedBank_shouldCallRepositoriesDeleteMethods() {
-        when(bankRepository.get(existedId)).thenReturn(Optional.of(new Bank()));
+        when(bankRepository.get(EXISTED_ID)).thenReturn(Optional.of(new Bank()));
 
-        bankService.delete(existedId);
+        bankService.delete(EXISTED_ID);
 
-        verify(bankRepository).delete(existedId);
-        verify(currencyRepository).deleteAllByBankId(existedId);
+        verify(bankRepository).delete(EXISTED_ID);
+        verify(currencyRepository).deleteAllByBankId(EXISTED_ID);
     }
 
     @Test
@@ -120,9 +120,9 @@ class BankServiceImplTest {
         when(bankRepository.get(anyLong())).thenReturn(Optional.empty());
 
         ResourceNotFoundException resourceNotFoundException =
-                assertThrows(ResourceNotFoundException.class, () -> bankService.delete(notExistedId));
+                assertThrows(ResourceNotFoundException.class, () -> bankService.delete(NOT_EXISTED_ID));
 
-        assertEquals("Bank with id " + notExistedId + " is not found", resourceNotFoundException.getMessage());
+        assertEquals("Bank with id " + NOT_EXISTED_ID + " is not found", resourceNotFoundException.getMessage());
 
         verify(bankRepository, never()).delete(anyLong());
         verify(currencyRepository, never()).deleteAllByBankId(anyLong());
@@ -131,8 +131,8 @@ class BankServiceImplTest {
     @Test
     void update_existedBank_shouldReturnUpdatedDto() {
         String newAddress = "Street 1000";
-        Bank bankForUpdate = Bank.builder().id(existedId).address("Street 1").build();
-        Bank updatedBank = Bank.builder().id(existedId).address(newAddress).build();
+        Bank bankForUpdate = Bank.builder().id(EXISTED_ID).address("Street 1").build();
+        Bank updatedBank = Bank.builder().id(EXISTED_ID).address(newAddress).build();
 
         when(bankRepository.update(bankForUpdate)).thenReturn(Optional.of(updatedBank));
 
@@ -146,33 +146,33 @@ class BankServiceImplTest {
 
     @Test
     void get_existedBankWithoutCurrencies_shouldReturnBankDtoWithoutCurrencies() {
-        when(bankRepository.get(bankFromRepo1.getId())).thenReturn(Optional.of(bankFromRepo1));
+        when(bankRepository.get(BANK_FROM_REPO1.getId())).thenReturn(Optional.of(BANK_FROM_REPO1));
 
-        BankDto bankDto = bankService.get(bankFromRepo1.getId());
+        BankDto bankDto = bankService.get(BANK_FROM_REPO1.getId());
 
         assertNotNull(bankDto);
         assertEquals(bankDto.getCurrencies().size(), 0);
-        assertEquals(new BankDto(bankFromRepo1), bankDto);
+        assertEquals(new BankDto(BANK_FROM_REPO1), bankDto);
 
-        verify(bankRepository).get(bankFromRepo1.getId());
-        verify(currencyRepository).getAllByBankId(bankFromRepo1.getId());
+        verify(bankRepository).get(BANK_FROM_REPO1.getId());
+        verify(currencyRepository).getAllByBankId(BANK_FROM_REPO1.getId());
     }
 
     @Test
     void get_existedBankWithCurrencies_shouldReturnBankDtoWithCurrencies() {
-        when(bankRepository.get(bankFromRepo1.getId()))
-                .thenReturn(Optional.of(bankFromRepo1));
-        when(currencyRepository.getAllByBankId(bankFromRepo1.getId()))
-                .thenReturn(currencies1);
+        when(bankRepository.get(BANK_FROM_REPO1.getId()))
+                .thenReturn(Optional.of(BANK_FROM_REPO1));
+        when(currencyRepository.getAllByBankId(BANK_FROM_REPO1.getId()))
+                .thenReturn(CURRENCIES1);
 
-        BankDto bankDto = bankService.get(bankFromRepo1.getId());
+        BankDto bankDto = bankService.get(BANK_FROM_REPO1.getId());
 
         assertNotNull(bankDto.getCurrencies());
         assertTrue(bankDto.getCurrencies().size() > 0);
-        assertEquals(new BankDto(bankFromRepo1, currencies1), bankDto);
+        assertEquals(new BankDto(BANK_FROM_REPO1, CURRENCIES1), bankDto);
 
-        verify(bankRepository).get(bankFromRepo1.getId());
-        verify(currencyRepository).getAllByBankId(bankFromRepo1.getId());
+        verify(bankRepository).get(BANK_FROM_REPO1.getId());
+        verify(currencyRepository).getAllByBankId(BANK_FROM_REPO1.getId());
     }
 
     @Test
@@ -180,21 +180,21 @@ class BankServiceImplTest {
         when(bankRepository.get(anyLong())).thenReturn(Optional.empty());
 
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class,
-                () -> bankService.get(notExistedId));
+                () -> bankService.get(NOT_EXISTED_ID));
 
-        assertEquals("Bank with id " + notExistedId + " is not found",
+        assertEquals("Bank with id " + NOT_EXISTED_ID + " is not found",
                 resourceNotFoundException.getMessage());
-        verify(bankRepository).get(notExistedId);
+        verify(bankRepository).get(NOT_EXISTED_ID);
     }
 
     @Test
     void getAll_shouldReturnListOfBankDto() {
         List<BankDto> expectedList = Arrays
-                .asList(new BankDto(bankFromRepo1, currencies1), new BankDto(bankFromRepo2, currencies2));
+                .asList(new BankDto(BANK_FROM_REPO1, CURRENCIES1), new BankDto(BANK_FROM_REPO2, CURRENCIES2));
 
-        when(bankRepository.getAll()).thenReturn(Arrays.asList(bankFromRepo1, bankFromRepo2));
-        when(currencyRepository.getAllByBankId(bankFromRepo1.getId())).thenReturn(currencies1);
-        when(currencyRepository.getAllByBankId(bankFromRepo2.getId())).thenReturn(currencies2);
+        when(bankRepository.getAll()).thenReturn(Arrays.asList(BANK_FROM_REPO1, BANK_FROM_REPO2));
+        when(currencyRepository.getAllByBankId(BANK_FROM_REPO1.getId())).thenReturn(CURRENCIES1);
+        when(currencyRepository.getAllByBankId(BANK_FROM_REPO2.getId())).thenReturn(CURRENCIES2);
 
         List<BankDto> banks = bankService.getAll();
 
@@ -202,18 +202,18 @@ class BankServiceImplTest {
         assertEquals(expectedList, banks);
 
         verify(bankRepository).getAll();
-        verify(currencyRepository).getAllByBankId(bankFromRepo1.getId());
-        verify(currencyRepository).getAllByBankId(bankFromRepo2.getId());
+        verify(currencyRepository).getAllByBankId(BANK_FROM_REPO1.getId());
+        verify(currencyRepository).getAllByBankId(BANK_FROM_REPO2.getId());
     }
 
     @Test
     void searchTextInDB_shouldReturnBankDtoList() {
         String searchText = "MoNO";
-        when(bankRepository.searchTextInDB(searchText)).thenReturn(singletonList(bankFromRepo1));
+        when(bankRepository.searchTextInDB(searchText)).thenReturn(singletonList(BANK_FROM_REPO1));
 
         List<BankDto> bankDtos = bankService.searchTextInDB(searchText);
 
-        assertEquals(singletonList(new BankDto(bankFromRepo1)), bankDtos);
+        assertEquals(singletonList(new BankDto(BANK_FROM_REPO1)), bankDtos);
         verify(bankRepository).searchTextInDB(searchText);
     }
 
