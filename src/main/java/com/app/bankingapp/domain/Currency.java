@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Currency {
     private Long id;
     private Long bankId;

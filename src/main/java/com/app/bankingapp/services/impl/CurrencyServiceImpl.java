@@ -29,7 +29,12 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public void delete(Long id) {
-        currencyRepository.delete(id);
+        currencyRepository.get(id)
+                .map(currency -> {
+                    currencyRepository.delete(id);
+                    return currency;
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Currency with id " + id + " was not found"));
     }
 
     @Override
