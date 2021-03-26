@@ -1,9 +1,8 @@
 package com.app.bankingapp.services.impl;
 
 import com.app.bankingapp.dtos.CurrencyDto;
-import com.app.bankingapp.exceptions.ApplicationException;
 import com.app.bankingapp.exceptions.ResourceNotFoundException;
-import com.app.bankingapp.repositories.CurrencyRepository;
+import com.app.bankingapp.repositories.JpaCurrencyRepository;
 import com.app.bankingapp.services.CurrencyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,21 +16,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CurrencyServiceImpl implements CurrencyService {
 
-    private final CurrencyRepository currencyRepository;
+    private final JpaCurrencyRepository currencyRepository;
 
     @Override
     public CurrencyDto create(CurrencyDto currency) {
-        return currencyRepository
-                .create(CurrencyDto.toDomain(currency))
-                .map(CurrencyDto::new)
-                .orElseThrow(() -> new ApplicationException("Currency " + currency + " was not added"));
+        currency.setId(null);
+        return new CurrencyDto(currencyRepository.save(CurrencyDto.toDomain(currency)));
     }
 
     @Override
     public void delete(Long id) {
-        currencyRepository.get(id)
+        currencyRepository.findById(id)
                 .map(currency -> {
-                    currencyRepository.delete(id);
+                    currencyRepository.deleteById(id);
                     return currency;
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Currency with id " + id + " was not found"));
@@ -39,16 +36,13 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public CurrencyDto update(CurrencyDto currency) {
-        return currencyRepository
-                .update(CurrencyDto.toDomain(currency))
-                .map(CurrencyDto::new)
-                .orElseThrow(() -> new ApplicationException("Currency " + currency + " was not updated"));
+        return new CurrencyDto(currencyRepository.save(CurrencyDto.toDomain(currency)));
     }
 
     @Override
     public CurrencyDto get(Long id) {
         return currencyRepository
-                .get(id)
+                .findById(id)
                 .map(CurrencyDto::new)
                 .orElseThrow(() -> new ResourceNotFoundException("Currency with id " + id + " is not found"));
     }
@@ -56,16 +50,7 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Override
     public List<CurrencyDto> getAll() {
         return currencyRepository
-                .getAll()
-                .stream()
-                .map(CurrencyDto::new)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CurrencyDto> searchTextInDB(String text) {
-        return currencyRepository
-                .searchTextInDB(text)
+                .findAll()
                 .stream()
                 .map(CurrencyDto::new)
                 .collect(Collectors.toList());
