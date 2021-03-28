@@ -24,46 +24,46 @@ public class ApplicationReadyEventListener {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(ApplicationReadyEventListener.class);
 
-    private final JpaBankRepository BANK_REPOSITORY;
-    private final JpaCurrencyRepository CURRENCY_REPOSITORY;
-    private final BankService BANK_SERVICE;
-    private final CurrencyService CURRENCY_SERVICE;
+    private final JpaBankRepository bankRepository;
+    private final JpaCurrencyRepository currencyRepository;
+    private final BankService bankService;
+    private final CurrencyService currencyService;
 
     public ApplicationReadyEventListener(JpaBankRepository bankRepository, JpaCurrencyRepository currencyRepository, BankService bankService, CurrencyService currencyService) {
-        this.BANK_REPOSITORY = bankRepository;
-        this.CURRENCY_REPOSITORY = currencyRepository;
-        this.BANK_SERVICE = bankService;
-        this.CURRENCY_SERVICE = currencyService;
+        this.bankRepository = bankRepository;
+        this.currencyRepository = currencyRepository;
+        this.bankService = bankService;
+        this.currencyService = currencyService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReadyHandler() {
 // GET
-        Bank bank = BANK_REPOSITORY.findById(1L)
+        Bank bank = bankRepository.findById(1L)
                 .orElseThrow(() -> new ApplicationException("Bank was not found"));
         LOGGER.info("Bank = {}", bank);
 
-        BankDto bankDto = BANK_SERVICE.get(1L);
+        BankDto bankDto = bankService.get(1L);
         LOGGER.info("BankDto = {}", bankDto);
 
-        Currency currency = CURRENCY_REPOSITORY.findById(1L)
+        Currency currency = currencyRepository.findById(1L)
                 .orElseThrow(() -> new ApplicationException("Currency was not found"));
         LOGGER.info("Currency = {}", currency);
 
-        CurrencyDto currencyDto = CURRENCY_SERVICE.get(1L);
+        CurrencyDto currencyDto = currencyService.get(1L);
         LOGGER.info("CurrencyDto = {}", currencyDto);
 
 // GET ALL
-        List<Bank> banks = BANK_REPOSITORY.findAll();
+        List<Bank> banks = bankRepository.findAll();
         LOGGER.info("All banks = {}", banks);
 
-        List<BankDto> bankDtos = BANK_SERVICE.getAll();
+        List<BankDto> bankDtos = bankService.getAll();
         LOGGER.info("All bank Dtos = {}", bankDtos);
 
-        List<Currency> currencies = CURRENCY_REPOSITORY.findAll();
+        List<Currency> currencies = currencyRepository.findAll();
         LOGGER.info("All currencies = {}", currencies);
 
-        List<CurrencyDto> currencyDtos = CURRENCY_SERVICE.getAll();
+        List<CurrencyDto> currencyDtos = currencyService.getAll();
         LOGGER.info("All currency Dtos = {}", currencyDtos);
 
 // CREATE
@@ -74,11 +74,11 @@ public class ApplicationReadyEventListener {
         newBank.setAbleToBuyCurrencyOnline(false);
         newBank.setNumberOfBranches(10L);
         newBank.setAddress("Central avenue 1");
-        Bank createdBank = BANK_REPOSITORY.save(newBank);
+        Bank createdBank = bankRepository.save(newBank);
         LOGGER.info("New bank = {}", createdBank);
 
         BankDto newBankDto = new BankDto(newBank);
-        BankDto createdBankDto = BANK_SERVICE.create(newBankDto);
+        BankDto createdBankDto = bankService.create(newBankDto);
         LOGGER.info("New bankDto = {}", createdBankDto);
 
         Currency newCurrency = new Currency();
@@ -87,45 +87,45 @@ public class ApplicationReadyEventListener {
         newCurrency.setShortName("UAH1");
         newCurrency.setPurchaseRate(new BigDecimal("26.11"));
         newCurrency.setSellingRate(new BigDecimal("28.12"));
-        Currency createdCurrency = CURRENCY_REPOSITORY.save(newCurrency);
+        Currency createdCurrency = currencyRepository.save(newCurrency);
         LOGGER.info("New currency = {}", createdCurrency);
 
         CurrencyDto newCurrencyDto = new CurrencyDto(newCurrency);
-        CurrencyDto createdCurrencyDto = CURRENCY_SERVICE.create(newCurrencyDto);
+        CurrencyDto createdCurrencyDto = currencyService.create(newCurrencyDto);
         LOGGER.info("New currencyDto = {}", createdCurrencyDto);
 
 // UPDATE
         createdBank.setAddress("Central avenue 100");
-        Bank updatedBank = BANK_REPOSITORY.save(createdBank);
+        Bank updatedBank = bankRepository.save(createdBank);
         LOGGER.info("Updated bank = {}", updatedBank);
 
         createdBankDto.setAbleToBuyCurrencyOnline(true);
-        BankDto updatedBankDto = BANK_SERVICE.update(createdBankDto);
+        BankDto updatedBankDto = bankService.update(createdBankDto);
         LOGGER.info("Updated bankDto = {}", updatedBankDto);
 
         createdCurrency.setShortName("UAH");
-        Currency updatedCurrency = CURRENCY_REPOSITORY.save(createdCurrency);
+        Currency updatedCurrency = currencyRepository.save(createdCurrency);
         LOGGER.info("Updated currency = {}", updatedCurrency);
 
         createdCurrencyDto.setSellingRate(new BigDecimal("30.12"));
-        CurrencyDto updatedCurrencyDto = CURRENCY_SERVICE.update(createdCurrencyDto);
+        CurrencyDto updatedCurrencyDto = currencyService.update(createdCurrencyDto);
         LOGGER.info("Updated bank = {}", updatedCurrencyDto);
 
 // DELETE
-        BANK_REPOSITORY.deleteById(createdBank.getId());
-        banks = BANK_REPOSITORY.findAll();
+        bankRepository.deleteById(createdBank.getId());
+        banks = bankRepository.findAll();
         LOGGER.info("All banks (updated) = {}", banks);
 
-        BANK_SERVICE.delete(createdBankDto.getId());
-        bankDtos = BANK_SERVICE.getAll();
+        bankService.delete(createdBankDto.getId());
+        bankDtos = bankService.getAll();
         LOGGER.info("All banks Dtos (updated) = {}", bankDtos);
 
-        CURRENCY_REPOSITORY.deleteById(createdCurrency.getId());
-        currencies = CURRENCY_REPOSITORY.findAll();
+        currencyRepository.deleteById(createdCurrency.getId());
+        currencies = currencyRepository.findAll();
         LOGGER.info("All currencies (updated) = {}", currencies);
 
-        CURRENCY_SERVICE.delete(createdCurrencyDto.getId());
-        currencyDtos = CURRENCY_SERVICE.getAll();
+        currencyService.delete(createdCurrencyDto.getId());
+        currencyDtos = currencyService.getAll();
         LOGGER.info("All currencies Dtos (updated) = {}", currencyDtos);
     }
 }
