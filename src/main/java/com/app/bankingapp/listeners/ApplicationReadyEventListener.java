@@ -5,9 +5,9 @@ import com.app.bankingapp.domain.Currency;
 import com.app.bankingapp.dtos.BankDto;
 import com.app.bankingapp.dtos.CurrencyDto;
 import com.app.bankingapp.exceptions.ApplicationException;
-import com.app.bankingapp.repositories.BankRepository;
-import com.app.bankingapp.repositories.CurrencyRepository;
 
+import com.app.bankingapp.repositories.JpaBankRepository;
+import com.app.bankingapp.repositories.JpaCurrencyRepository;
 import com.app.bankingapp.services.BankService;
 import com.app.bankingapp.services.CurrencyService;
 import org.slf4j.Logger;
@@ -24,12 +24,12 @@ public class ApplicationReadyEventListener {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(ApplicationReadyEventListener.class);
 
-    private final BankRepository bankRepository;
-    private final CurrencyRepository currencyRepository;
+    private final JpaBankRepository bankRepository;
+    private final JpaCurrencyRepository currencyRepository;
     private final BankService bankService;
     private final CurrencyService currencyService;
 
-    public ApplicationReadyEventListener(BankRepository bankRepository, CurrencyRepository currencyRepository, BankService bankService, CurrencyService currencyService) {
+    public ApplicationReadyEventListener(JpaBankRepository bankRepository, JpaCurrencyRepository currencyRepository, BankService bankService, CurrencyService currencyService) {
         this.bankRepository = bankRepository;
         this.currencyRepository = currencyRepository;
         this.bankService = bankService;
@@ -39,14 +39,14 @@ public class ApplicationReadyEventListener {
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReadyHandler() {
 // GET
-        Bank bank = bankRepository.get(1L)
+        Bank bank = bankRepository.findById(1L)
                 .orElseThrow(() -> new ApplicationException("Bank was not found"));
         LOGGER.info("Bank = {}", bank);
 
         BankDto bankDto = bankService.get(1L);
         LOGGER.info("BankDto = {}", bankDto);
 
-        Currency currency = currencyRepository.get(1L)
+        Currency currency = currencyRepository.findById(1L)
                 .orElseThrow(() -> new ApplicationException("Currency was not found"));
         LOGGER.info("Currency = {}", currency);
 
@@ -54,13 +54,13 @@ public class ApplicationReadyEventListener {
         LOGGER.info("CurrencyDto = {}", currencyDto);
 
 // GET ALL
-        List<Bank> banks = bankRepository.getAll();
+        List<Bank> banks = bankRepository.findAll();
         LOGGER.info("All banks = {}", banks);
 
         List<BankDto> bankDtos = bankService.getAll();
         LOGGER.info("All bank Dtos = {}", bankDtos);
 
-        List<Currency> currencies = currencyRepository.getAll();
+        List<Currency> currencies = currencyRepository.findAll();
         LOGGER.info("All currencies = {}", currencies);
 
         List<CurrencyDto> currencyDtos = currencyService.getAll();
@@ -74,8 +74,7 @@ public class ApplicationReadyEventListener {
         newBank.setAbleToBuyCurrencyOnline(false);
         newBank.setNumberOfBranches(10L);
         newBank.setAddress("Central avenue 1");
-        Bank createdBank = bankRepository.create(newBank)
-                .orElseThrow(() -> new ApplicationException("Bank was not created"));
+        Bank createdBank = bankRepository.save(newBank);
         LOGGER.info("New bank = {}", createdBank);
 
         BankDto newBankDto = new BankDto(newBank);
@@ -88,8 +87,7 @@ public class ApplicationReadyEventListener {
         newCurrency.setShortName("UAH1");
         newCurrency.setPurchaseRate(new BigDecimal("26.11"));
         newCurrency.setSellingRate(new BigDecimal("28.12"));
-        Currency createdCurrency = currencyRepository.create(newCurrency)
-                .orElseThrow(() -> new ApplicationException("Currency was not created"));
+        Currency createdCurrency = currencyRepository.save(newCurrency);
         LOGGER.info("New currency = {}", createdCurrency);
 
         CurrencyDto newCurrencyDto = new CurrencyDto(newCurrency);
@@ -98,8 +96,7 @@ public class ApplicationReadyEventListener {
 
 // UPDATE
         createdBank.setAddress("Central avenue 100");
-        Bank updatedBank = bankRepository.update(createdBank)
-                .orElseThrow(() -> new ApplicationException("Bank was not updated"));
+        Bank updatedBank = bankRepository.save(createdBank);
         LOGGER.info("Updated bank = {}", updatedBank);
 
         createdBankDto.setAbleToBuyCurrencyOnline(true);
@@ -107,43 +104,28 @@ public class ApplicationReadyEventListener {
         LOGGER.info("Updated bankDto = {}", updatedBankDto);
 
         createdCurrency.setShortName("UAH");
-        Currency updatedCurrency = currencyRepository.update(createdCurrency)
-                .orElseThrow(() -> new ApplicationException("Currency was not updated"));
+        Currency updatedCurrency = currencyRepository.save(createdCurrency);
         LOGGER.info("Updated currency = {}", updatedCurrency);
 
         createdCurrencyDto.setSellingRate(new BigDecimal("30.12"));
         CurrencyDto updatedCurrencyDto = currencyService.update(createdCurrencyDto);
         LOGGER.info("Updated bank = {}", updatedCurrencyDto);
 
-// Get global banks
-        LOGGER.info("Global banks are = {}", bankRepository.getGlobalBanks());
-
-// Get high-purchase rate currencies
-        LOGGER.info("High-purchase rate currencies are = {}", currencyRepository.getCurrenciesWithHighPurchaseRate());
-
 // DELETE
-        bankRepository.delete(createdBank.getId());
-        banks = bankRepository.getAll();
+        bankRepository.deleteById(createdBank.getId());
+        banks = bankRepository.findAll();
         LOGGER.info("All banks (updated) = {}", banks);
 
         bankService.delete(createdBankDto.getId());
         bankDtos = bankService.getAll();
         LOGGER.info("All banks Dtos (updated) = {}", bankDtos);
 
-        currencyRepository.delete(createdCurrency.getId());
-        currencies = currencyRepository.getAll();
+        currencyRepository.deleteById(createdCurrency.getId());
+        currencies = currencyRepository.findAll();
         LOGGER.info("All currencies (updated) = {}", currencies);
 
         currencyService.delete(createdCurrencyDto.getId());
         currencyDtos = currencyService.getAll();
         LOGGER.info("All currencies Dtos (updated) = {}", currencyDtos);
-
-// Search text in banks table
-        LOGGER.info("List of text found in banks table = {}", bankRepository.searchTextInDB("mAiN"));
-        LOGGER.info("List of text found in banks table = {}", bankService.searchTextInDB("onoB"));
-
-// Search text in currencies table
-        LOGGER.info("List of text found in currencies table = {}", currencyRepository.searchTextInDB("us"));
-        LOGGER.info("List of text found in currencies table = {}", currencyService.searchTextInDB("1"));
     }
 }

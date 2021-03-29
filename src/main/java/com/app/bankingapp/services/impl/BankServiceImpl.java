@@ -3,10 +3,10 @@ package com.app.bankingapp.services.impl;
 import com.app.bankingapp.domain.Bank;
 import com.app.bankingapp.domain.Currency;
 import com.app.bankingapp.dtos.BankDto;
-import com.app.bankingapp.exceptions.ApplicationException;
+import com.app.bankingapp.dtos.CurrencyDto;
 import com.app.bankingapp.exceptions.ResourceNotFoundException;
-import com.app.bankingapp.repositories.BankRepository;
-import com.app.bankingapp.repositories.CurrencyRepository;
+import com.app.bankingapp.repositories.JpaBankRepository;
+import com.app.bankingapp.repositories.JpaCurrencyRepository;
 import com.app.bankingapp.services.BankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,27 +20,33 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BankServiceImpl implements BankService {
 
-    private final BankRepository bankRepository;
-    private final CurrencyRepository currencyRepository;
+    private final JpaBankRepository bankRepository;
+    private final JpaCurrencyRepository currencyRepository;
 
     @Override
     public BankDto create(BankDto bankDto) {
+        bankDto.setId(null);
         Bank newBank = bankRepository
-                .create(BankDto.toDomain(bankDto))
-                .orElseThrow(() -> new ApplicationException("Bank " + bankDto + " was not added"));
+                .save(BankDto.toDomain(bankDto));
         List<Currency> createdCurrencies = null;
         if (bankDto.getCurrencies() != null && !bankDto.getCurrencies().isEmpty()) {
-            createdCurrencies = currencyRepository.create(bankDto.getCurrencies(), newBank.getId());
+            List<Currency> currencies = bankDto.getCurrencies()
+                    .stream()
+                    .peek(currencyDto -> currencyDto.setBankId(newBank.getId()))
+                    .peek(currencyDto -> currencyDto.setId(null))
+                    .map(currencyDto -> currencyRepository.save(CurrencyDto.toDomain(currencyDto)))
+                    .collect(Collectors.toList());
+            createdCurrencies = currencyRepository.saveAll(currencies);
         }
         return new BankDto(newBank, createdCurrencies);
     }
 
     @Override
     public void delete(Long id) {
-        bankRepository.get(id)
+        bankRepository.findById(id)
                 .map(bank -> {
-                    currencyRepository.deleteAllByBankId(id);
-                    bankRepository.delete(id);
+                    currencyRepository.deleteAllByBankIdIs(id);
+                    bankRepository.deleteById(id);
                     return bank;
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Bank with id " + id + " is not found"));
@@ -49,33 +55,23 @@ public class BankServiceImpl implements BankService {
     @Override
     public BankDto update(BankDto bankDto) {
         Bank updatedBank = bankRepository
-                .update(BankDto.toDomain(bankDto))
-                .orElseThrow(() -> new ApplicationException("Bank " + bankDto + " was not updated"));
-        return new BankDto(updatedBank, currencyRepository.getAllByBankId(updatedBank.getId()));
+                .save(BankDto.toDomain(bankDto));
+        return new BankDto(updatedBank, currencyRepository.findAllByBankIdIs(updatedBank.getId()));
     }
 
     @Override
     public BankDto get(Long id) {
-        return bankRepository.get(id)
-                .map(bank -> new BankDto(bank, currencyRepository.getAllByBankId(id)))
+        return bankRepository.findById(id)
+                .map(bank -> new BankDto(bank, currencyRepository.findAllByBankIdIs(id)))
                 .orElseThrow(() -> new ResourceNotFoundException("Bank with id " + id + " is not found"));
     }
 
     @Override
     public List<BankDto> getAll() {
         return bankRepository
-                .getAll()
+                .findAll()
                 .stream()
-                .map(bank -> new BankDto(bank, currencyRepository.getAllByBankId(bank.getId())))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<BankDto> searchTextInDB(String text) {
-        return bankRepository
-                .searchTextInDB(text)
-                .stream()
-                .map(BankDto::new)
+                .map(bank -> new BankDto(bank, currencyRepository.findAllByBankIdIs(bank.getId())))
                 .collect(Collectors.toList());
     }
 }
